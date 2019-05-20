@@ -24,14 +24,14 @@ ON cms3_object_images.field_id = 300 && cms3_objects.id = cms3_object_images.obj
 LIMIT $start_from, $limit";
 $rs_result = mysqli_query($link, $sql);
 if ($rs_result) {
-    $response["products"] = array();
+    $response["results"] = array();
     while ($row = mysqli_fetch_array($rs_result)) {
         $product = array();
         $product["type_id"] = $row["type_id"];
         $product["id"] = $row["id"];
         $product["name"] = $row["name"];
         $product["img_url"] = str_replace('./', 'http://ct03381.tmweb.ru/', $row["src"]);
-        array_push($response["products"], $product);
+        array_push($response["results"], $product);
     }
     $response["page"] = $pn;
     $response["total_records"] = $total_records;
