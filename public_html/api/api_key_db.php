@@ -1,0 +1,2 @@
+<?php
+define("ANDROID_API_KEY", "1b38e2bb-15e2-4ad5-8c41-7788dd765402");
