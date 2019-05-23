@@ -10,7 +10,6 @@ $link = mysqli_connect(DB_SERVER, DB_USER, DB_PASSWORD, DB_DATABASE);
 
 if (isset($_GET["api_key"]) && $_GET["api_key"] == ANDROID_API_KEY) {
 
-
     if (isset($_GET["per_page"]) && $_GET["per_page"] > 0) {
         $limit = $_GET["per_page"];
     } else {
@@ -46,6 +45,7 @@ LIMIT $start_from, $limit";
         $response["page"] = $pn;
         $response["total_records"] = $total_records;
         $response["total_pages"] = $total_pages;
+        $response["key"] = true;
         if ($pn == $total_pages) {
             $response["has_more"] = false;
         } else {
@@ -58,5 +58,6 @@ LIMIT $start_from, $limit";
         echo json_encode($response);
     }
 } else {
-    echo 'ERROR KEY';
+    $response["key"] = false;
+    echo json_encode($response);
 }
