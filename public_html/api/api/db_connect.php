@@ -10,10 +10,10 @@ $link = mysqli_connect(DB_SERVER, DB_USER, DB_PASSWORD, DB_DATABASE);
 
 if (isset($_GET["api_key"]) && $_GET["api_key"] == ANDROID_API_KEY) {
 
-    if (isset($_GET["per_page"]) && $_GET["per_page"] > 0) {
+    if (isset($_GET["per_page"]) < $total_records && $_GET["per_page"] > 0) {
         $limit = $_GET["per_page"];
     } else {
-        echo "ERROR per page";
+        $limit = $total_records;
     }
 
     $total_pages = ceil($total_records / $limit);
