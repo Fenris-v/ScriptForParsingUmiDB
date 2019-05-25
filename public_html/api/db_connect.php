@@ -10,7 +10,7 @@ $link = mysqli_connect(DB_SERVER, DB_USER, DB_PASSWORD, DB_DATABASE);
 
 if (isset($_GET["api_key"]) && $_GET["api_key"] == ANDROID_API_KEY) {
 
-    if (isset($_GET["per_page"]) < $total_records && $_GET["per_page"] > 0) {
+    if (isset($_GET["per_page"]) && $_GET["per_page"] > 0 && $_GET["per_page"] < $total_records) {
         $limit = $_GET["per_page"];
     } else {
         $limit = $total_records;
@@ -52,12 +52,20 @@ WHERE cms3_object_images.obj_id = $obj_id";
                 $images = array();
                 while ($row = mysqli_fetch_array($img_result)) {
                     $img_url = array();
-                    $img_url["img_url".$i] = str_replace('./', 'http://ct03381.tmweb.ru/', $row["src"]);
+                    $img_url[$i] = str_replace('./', 'http://ct03381.tmweb.ru/', $row["src"]);
                     $i++;
                     array_push($images, $img_url);
                 }
             }
-            $product["img_urls"] = $images;
+//            $arr_item_count = count($images);
+            for ($i = 0; $i < count($images); $i++) {
+                foreach ($images as $value) {
+                    $product["img_url" . $i] = implode($images[$i]);
+//                    echo $images["img_url" . $i];
+                }
+            }
+
+//            $product["img_urls"] = $images;
             array_push($response["results"], $product);
         }
         $response["page"] = $pn;
