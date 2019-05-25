@@ -57,15 +57,13 @@ WHERE cms3_object_images.obj_id = $obj_id";
                     array_push($images, $img_url);
                 }
             }
-//            $arr_item_count = count($images);
+
             for ($i = 0; $i < count($images); $i++) {
                 foreach ($images as $value) {
                     $product["img_url" . $i] = implode($images[$i]);
-//                    echo $images["img_url" . $i];
                 }
             }
 
-//            $product["img_urls"] = $images;
             array_push($response["results"], $product);
         }
         $response["page"] = $pn;
