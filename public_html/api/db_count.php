@@ -20,8 +20,8 @@ if ($rs_result_count) {
         file_put_contents($filename, $total_records);
     }
 } else {
-    $response["success"] = 'cock';
-    $response["message"] = 'cock';
+    $response["success"] = '0';
+    $response["message"] = 'error';
 
     echo json_encode($response);
 }
