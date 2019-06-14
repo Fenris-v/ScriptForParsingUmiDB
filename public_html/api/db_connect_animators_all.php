@@ -2,9 +2,39 @@
 header('Content-Type: application/json');
 require_once 'db_config.php';
 require_once 'api_key_db.php';
-$total_records = file_get_contents('animators_all.txt');
 $link = mysqli_connect(DB_SERVER, DB_USER, DB_PASSWORD, DB_DATABASE);
 if (isset($_GET["api_key"]) && $_GET["api_key"] == ANDROID_API_KEY) {
+    if (isset($_GET["item_type"]) && ($_GET["item_type"]) >= 0 && ($_GET["item_type"]) <= 5) {
+        switch ($_GET["item_type"]) {
+            case 0:
+                $item_type = "";
+                $total_records = file_get_contents('animators_all.txt');
+                break;
+            case 1:
+                $item_type = "Мультяшный";
+                $total_records = file_get_contents('animators_mult.txt');
+                break;
+            case 2:
+                $item_type = "Сказочный";
+                $total_records = file_get_contents('animators_fairy.txt');
+                break;
+            case 3:
+                $item_type = "Игровой";
+                $total_records = file_get_contents('animators_game.txt');
+                break;
+            case 4:
+                $item_type = "Реалистичный";
+                $total_records = file_get_contents('animators_real.txt');
+                break;
+            case 5:
+                $item_type = "Супергерой";
+                $total_records = file_get_contents('animators_hero.txt');
+                break;
+        }
+    } else {
+        $item_type = "";
+        $total_records = file_get_contents('animators_all.txt');
+    }
     if (isset($_GET["per_page"]) && $_GET["per_page"] > 0 && $_GET["per_page"] < $total_records) {
         $limit = $_GET["per_page"];
     } else {
@@ -19,10 +49,21 @@ if (isset($_GET["api_key"]) && $_GET["api_key"] == ANDROID_API_KEY) {
         $pn = 1;
     };
     $start_from = ($pn - 1) * $limit;
-    $sql = "SELECT cms3_objects.type_id, cms3_objects.id, cms3_objects.name, cms3_hierarchy.alt_name
+    echo $item_type;
+    if ($item_type != "") {
+        $sql = "SELECT cms3_objects.type_id, cms3_objects.id, cms3_objects.name, cms3_hierarchy.alt_name, cms3_filter_index_52_pages_6.tip_personazha
+FROM cms3_objects
+LEFT JOIN cms3_hierarchy
+ON cms3_objects.type_id = 131 && cms3_hierarchy.is_active = 1 && cms3_objects.id = cms3_hierarchy.obj_id && cms3_hierarchy.is_deleted = 0
+JOIN cms3_filter_index_52_pages_6
+ON cms3_objects.id = cms3_filter_index_52_pages_6.obj_id && INSTR(cms3_filter_index_52_pages_6.tip_personazha, '$item_type')
+LIMIT $start_from, $limit";
+    } else {
+        $sql = "SELECT cms3_objects.type_id, cms3_objects.id, cms3_objects.name, cms3_hierarchy.alt_name
 FROM cms3_objects JOIN cms3_hierarchy
 ON cms3_objects.type_id = 131 && cms3_hierarchy.is_active = 1 && cms3_objects.id = cms3_hierarchy.obj_id && cms3_hierarchy.is_deleted = 0
 LIMIT $start_from, $limit";
+    }
     $rs_result = mysqli_query($link, $sql);
     if ($rs_result) {
         $response["results"] = array();
@@ -31,28 +72,29 @@ LIMIT $start_from, $limit";
             $product["type_id"] = $row["type_id"];
             $product["id"] = $row["id"];
             $product["name"] = $row["name"];
+            $product["type"] = substr(str_replace(";", " ", $row["tip_personazha"]), 1, -1);
             $product["item_url"] = "https://prazdnik-raduga.ru/animators/" . $row["alt_name"] . "/";
             $obj_id = $product["id"];
 
-                $sql_img = "SELECT cms3_object_images.src, cms3_object_images.obj_id
+            $sql_img = "SELECT cms3_object_images.src, cms3_object_images.obj_id
 FROM cms3_object_images
 WHERE cms3_object_images.obj_id = $obj_id && field_id = 497 || cms3_object_images.obj_id = $obj_id && field_id = 8";
-                $img_result = mysqli_query($link, $sql_img);
-                if ($img_result) {
-                    $i = 0;
-                    $images = array();
-                    while ($row = mysqli_fetch_array($img_result)) {
-                        $img_url = array();
-                        $img_url[$i] = str_replace('./', 'https://prazdnik-raduga.ru/', $row["src"]);
-                        $i++;
-                        array_push($images, $img_url);
-                    }
+            $img_result = mysqli_query($link, $sql_img);
+            if ($img_result) {
+                $i = 0;
+                $images = array();
+                while ($row = mysqli_fetch_array($img_result)) {
+                    $img_url = array();
+                    $img_url[$i] = str_replace('./', 'https://prazdnik-raduga.ru/', $row["src"]);
+                    $i++;
+                    array_push($images, $img_url);
                 }
-                for ($i = 0; $i < count($images); $i++) {
-                    foreach ($images as $value) {
-                        $product["img_url" . $i] = implode($images[$i]);
-                    }
+            }
+            for ($i = 0; $i < count($images); $i++) {
+                foreach ($images as $value) {
+                    $product["img_url" . $i] = implode($images[$i]);
                 }
+            }
 
             $sql_content = "SELECT cms3_object_content.text_val, cms3_object_content.obj_id
 FROM cms3_object_content
@@ -76,6 +118,7 @@ WHERE cms3_object_content.obj_id = $obj_id && field_id = 496 || cms3_object_cont
 
             array_push($response["results"], $product);
         }
+        mysqli_close($link);
         $response["page"] = $pn;
         $response["total_records"] = $total_records;
         $response["total_pages"] = $total_pages;
