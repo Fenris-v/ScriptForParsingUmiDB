@@ -49,7 +49,6 @@ if (isset($_GET["api_key"]) && $_GET["api_key"] == ANDROID_API_KEY) {
         $pn = 1;
     };
     $start_from = ($pn - 1) * $limit;
-    echo $item_type;
     if ($item_type != "") {
         $sql = "SELECT cms3_objects.type_id, cms3_objects.id, cms3_objects.name, cms3_hierarchy.alt_name, cms3_filter_index_52_pages_6.tip_personazha
 FROM cms3_objects
