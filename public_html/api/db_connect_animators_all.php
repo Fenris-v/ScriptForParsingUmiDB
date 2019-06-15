@@ -61,16 +61,16 @@ if (isset($_GET["api_key"]) && $_GET["api_key"] == ANDROID_API_KEY) {
     if ($_GET["item_type"] > 0 && $_GET["item_type"] <= 5) {
         $sql = "SELECT cms3_objects.type_id, cms3_objects.id, cms3_objects.name, cms3_hierarchy.is_active, cms3_filter_index_52_pages_6.tip_personazha, cms3_hierarchy.alt_name
 FROM cms3_objects 
-LEFT JOIN cms3_hierarchy
-ON cms3_objects.type_id = 131 && cms3_hierarchy.is_active = 1 && cms3_objects.id = cms3_hierarchy.obj_id
+JOIN cms3_hierarchy
+ON cms3_objects.type_id = 131 && cms3_hierarchy.is_active = 1 && cms3_objects.id = cms3_hierarchy.obj_id && cms3_hierarchy.is_deleted = 0
 JOIN cms3_filter_index_52_pages_6
 ON cms3_objects.id = cms3_filter_index_52_pages_6.obj_id && cms3_filter_index_52_pages_6.tip_personazha LIKE '%$item_type%'
 LIMIT $start_from, $limit";
     } else {
         $sql = "SELECT cms3_objects.type_id, cms3_objects.id, cms3_objects.name, cms3_hierarchy.is_active, cms3_filter_index_52_pages_6.tip_personazha, cms3_hierarchy.alt_name
 FROM cms3_objects
-LEFT JOIN cms3_hierarchy
-ON cms3_objects.type_id = 131 && cms3_hierarchy.is_active = 1 && cms3_objects.id = cms3_hierarchy.obj_id
+JOIN cms3_hierarchy
+ON cms3_objects.type_id = 131 && cms3_hierarchy.is_active = 1 && cms3_objects.id = cms3_hierarchy.obj_id && cms3_hierarchy.is_deleted = 0
 JOIN cms3_filter_index_52_pages_6
 ON cms3_objects.id = cms3_filter_index_52_pages_6.obj_id
 LIMIT $start_from, $limit";
@@ -88,7 +88,7 @@ LIMIT $start_from, $limit";
             $obj_id = $product["id"];
             $sql_img = "SELECT cms3_object_images.src, cms3_object_images.obj_id 
 FROM cms3_object_images
-WHERE cms3_object_images.obj_id = $obj_id && field_id = 497 || cms3_object_images.obj_id = $obj_id && field_id = 8";
+WHERE cms3_object_images.obj_id = $obj_id && cms3_object_images.field_id = 497 || cms3_object_images.obj_id = $obj_id && cms3_object_images.field_id = 8";
             $img_result = mysqli_query($link, $sql_img);
             if ($img_result) {
                 $i = 0;
@@ -100,10 +100,15 @@ WHERE cms3_object_images.obj_id = $obj_id && field_id = 497 || cms3_object_image
                     array_push($images, $img_url);
                 }
             }
+            for ($i = 0; $i < count($images); $i++) {
+                foreach ($images as $value) {
+                    $product["img_url" . $i] = implode($images[$i]);
+                }
+            }
 
             $sql_content = "SELECT cms3_object_content.text_val, cms3_object_content.obj_id 
 FROM cms3_object_content
-WHERE cms3_object_content.obj_id = $obj_id && field_id = 496 || cms3_object_content.obj_id = $obj_id && field_id = 502";
+WHERE cms3_object_content.obj_id = $obj_id && cms3_object_content.field_id = 496 || cms3_object_content.obj_id = $obj_id && cms3_object_content.field_id = 502";
             $content_result = mysqli_query($link, $sql_content);
             if ($content_result) {
                 $i = 0;
@@ -116,9 +121,6 @@ WHERE cms3_object_content.obj_id = $obj_id && field_id = 496 || cms3_object_cont
                 }
             }
             for ($i = 0; $i < count($contents); $i++) {
-                foreach ($images as $value) {
-                    $product["img_url" . $i] = implode($images[$i]);
-                }
                 foreach ($contents as $value) {
                     $product["content" . $i] = implode($contents[$i]);
                 }
