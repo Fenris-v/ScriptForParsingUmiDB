@@ -83,7 +83,7 @@ LIMIT $start_from, $limit";
             $product["type_id"] = $row["type_id"];
             $product["id"] = $row["id"];
             $product["name"] = $row["name"];
-            $product["url"] = 'https://prazdnik-raduga.ru/animators/' . $row["alt_name"] . '/';
+            $product["item_url"] = 'https://prazdnik-raduga.ru/animators/' . $row["alt_name"] . '/';
             $product["item_type"] = str_replace(";", " ", substr($row["tip_personazha"], 1, -1));
             $obj_id = $product["id"];
             $sql_img = "SELECT cms3_object_images.src, cms3_object_images.obj_id 
@@ -116,11 +116,11 @@ WHERE cms3_object_content.obj_id = $obj_id && field_id = 496 || cms3_object_cont
                 }
             }
             for ($i = 0; $i < count($contents); $i++) {
-                foreach ($contents as $value) {
-                    $product["content" . $i] = implode($contents[$i]);
-                }
                 foreach ($images as $value) {
                     $product["img_url" . $i] = implode($images[$i]);
+                }
+                foreach ($contents as $value) {
+                    $product["content" . $i] = implode($contents[$i]);
                 }
             }
 
